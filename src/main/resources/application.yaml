@@ -30,6 +30,11 @@ spring:
         order_inserts: true
         order_updates: true
 
+  jwt:
+    secret: "8d7c4f1e9b2a6c5f7e8d3a1b9c6d4e2f5a7b8c9d1e3f4a6b7c8d9e1f2a3b4c5d"
+    access-token-expiration: 900000
+    refresh-token-expiration: 604800000
+
   flyway:
     enabled: true
     baseline-on-migrate: true
