@@ -4,6 +4,8 @@ import com.example.EduVerse.enums.DocumentPriceType;
 import com.example.EduVerse.enums.DocumentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -41,6 +43,7 @@ public class Document {
     private String fileType = "PDF";
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "price_type", nullable = false)
     @Builder.Default
     private DocumentPriceType priceType = DocumentPriceType.FREE;
@@ -70,6 +73,7 @@ public class Document {
     private Category category;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     @Builder.Default
     private DocumentStatus status = DocumentStatus.PENDING;

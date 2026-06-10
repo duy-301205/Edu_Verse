@@ -5,6 +5,8 @@ import com.example.EduVerse.enums.TxStatus;
 import com.example.EduVerse.enums.WalletTxType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -28,10 +30,12 @@ public class WalletTransaction {
     private Wallet wallet;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     private WalletTxType type;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     private TxDirection direction;
 
@@ -59,6 +63,7 @@ public class WalletTransaction {
     private String idempotencyKey;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     @Builder.Default
     private TxStatus status = TxStatus.SUCCESS;

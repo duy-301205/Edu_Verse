@@ -1,6 +1,7 @@
 package com.example.EduVerse.service;
 
 import com.example.EduVerse.entity.User;
+import com.example.EduVerse.enums.UserRole;
 import com.example.EduVerse.exception.AppException;
 import com.example.EduVerse.exception.ErrorCode;
 import io.jsonwebtoken.*;
@@ -25,7 +26,7 @@ public class JwtUtilsService {
     @Value("${spring.jwt.access-token-expiration}")
     private Long accessExpiration;
 
-    @Value("${spring.jwt.refresh-expiration}")
+    @Value("${spring.jwt.refresh-token-expiration}")
     private Long refreshExpiration;
 
     private String buildToken(Map<String,Object> extraClaims, User user, long expirationTime) {
@@ -51,6 +52,32 @@ public class JwtUtilsService {
     public String generateRefreshToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         return buildToken(claims, user, refreshExpiration);
+    }
+
+    public boolean validateToken(String token, String username) {
+        try {
+            final String usernameFromToken = extractUsername(token);
+            return (username.equals(usernameFromToken) && !isTokenExpired(token));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String extractUsername(String token) {
+        return extractClaims(token, Claims::getSubject);
+    }
+
+    public UserRole extractRole(String token) {
+        String role = extractClaims(token, claims -> claims.get("role", String.class));
+        return UserRole.valueOf(role);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaims(token, Claims::getExpiration);
+    }
+
+    public boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
     }
 
     private <T> T extractClaims(String token, Function<Claims, T> extracter) {

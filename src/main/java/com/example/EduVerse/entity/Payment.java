@@ -4,6 +4,8 @@ import com.example.EduVerse.enums.PaymentProvider;
 import com.example.EduVerse.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -35,6 +37,7 @@ public class Payment {
     private Integer coinAmount;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     private PaymentProvider provider;
 
@@ -45,6 +48,7 @@ public class Payment {
     private String qrCodeUrl;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     @Builder.Default
     private PaymentStatus status = PaymentStatus.PENDING;

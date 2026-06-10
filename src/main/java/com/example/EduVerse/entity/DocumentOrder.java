@@ -3,6 +3,8 @@ package com.example.EduVerse.entity;
 import com.example.EduVerse.enums.TxStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -49,6 +51,7 @@ public class DocumentOrder {
     private Integer platformFeeCoin = 0;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     @Builder.Default
     private TxStatus status = TxStatus.SUCCESS;
