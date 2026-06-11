@@ -1,11 +1,10 @@
 package com.example.EduVerse.service;
 
-import com.example.EduVerse.dto.request.LoginRequest;
-import com.example.EduVerse.dto.request.RefreshTokenRequest;
-import com.example.EduVerse.dto.request.RegisterRequest;
+import com.example.EduVerse.dto.request.*;
 import com.example.EduVerse.dto.response.LoginResponse;
 import com.example.EduVerse.dto.response.RefreshTokenResponse;
 import com.example.EduVerse.dto.response.RegisterResponse;
+import com.example.EduVerse.dto.response.VerifyOtpResponse;
 import com.example.EduVerse.entity.User;
 import com.example.EduVerse.entity.Wallet;
 import com.example.EduVerse.enums.UserStatus;
@@ -13,13 +12,22 @@ import com.example.EduVerse.exception.AppException;
 import com.example.EduVerse.exception.ErrorCode;
 import com.example.EduVerse.repository.UserRepository;
 import com.example.EduVerse.repository.WalletRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -30,6 +38,11 @@ public class AuthService {
     private final WalletRepository walletRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtilsService jwtUtilsService;
+    private final StringRedisTemplate redisTemplate;
+    private final EmailService emailService;
+
+    private static final String OTP_PREFIX = "otp:";
+    private static final String RESET_TOKEN_PREFIX = "reset_token:";
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
@@ -119,4 +132,81 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        User user = getCurrentUser();
+
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+            throw new AppException(ErrorCode.OLD_PASSWORD_INCORRECT);
+        }
+
+        if(!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        log.info("User đã thay đổi mật khẩu thành công");
+    }
+
+    public void sendOtpForgotPassword(SendOtpRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Random rand = new Random();
+        String otp = String.format("%06d", rand.nextInt(1000000));
+        String redisKey = OTP_PREFIX + request.getEmail();
+
+        // Day OTP len
+        redisTemplate.opsForValue().set(redisKey, otp, 5, TimeUnit.MINUTES);
+
+        emailService.sendOtpEmailViaBrevo(request.getEmail(), user.getUsername(), otp);
+    }
+
+    public VerifyOtpResponse verifyOtpForgotPassword(VerifyOtpRequest request) {
+        String redisOtpKey = OTP_PREFIX + request.getEmail();
+        String savedOtp = redisTemplate.opsForValue().get(redisOtpKey);
+
+        if(savedOtp == null || !savedOtp.equals(request.getOtp())) {
+            throw new AppException(ErrorCode.INVALID_OR_EXPIRED_OTP);
+        }
+
+        String resetToken = UUID.randomUUID().toString();
+        String redisTokenKey = RESET_TOKEN_PREFIX + request.getEmail();
+
+        redisTemplate.opsForValue().set(redisTokenKey, resetToken, 5, TimeUnit.MINUTES);
+
+        redisTemplate.delete(redisOtpKey);
+
+        return VerifyOtpResponse.builder()
+                .resetToken(resetToken)
+                .build();
+    }
+
+    public void resetPasswordWithToken(ResetPasswordRequest request) {
+        String redisTokenKey = RESET_TOKEN_PREFIX + request.getEmail();
+        String savedToken = redisTemplate.opsForValue().get(redisTokenKey);
+
+        if(savedToken == null || !savedToken.equals(request.getResetToken())) {
+            throw new AppException(ErrorCode.INVALID_OR_EXPIRED_TOKEN);
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if(!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        redisTemplate.delete(redisTokenKey);
+    }
+
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
 }

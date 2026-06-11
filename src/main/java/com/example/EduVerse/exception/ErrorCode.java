@@ -23,6 +23,12 @@ public enum ErrorCode {
     PASSWORD_REQUIRED(2010, "Mật khẩu không được để trống.", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_INCORRECT(2011, "Mật khẩu cũ không chính xác.", HttpStatus.BAD_REQUEST),
     USER_BANNED(2012, "Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn cộng đồng.", HttpStatus.FORBIDDEN),
+    EMAIL_NOT_FOUND(2013, "Email không tồn tại trong hệ thống", HttpStatus.NOT_FOUND),
+    INVALID_OR_EXPIRED_OTP(2014, "Mã OTP không chính xác hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
+    INVALID_OR_EXPIRED_TOKEN(2018, "Token không chính xác hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
+    CANNOT_SEND_EMAIL(2015, "Hệ thống gặp sự cố khi gửi Email, vui lòng thử lại sau", HttpStatus.BAD_REQUEST),
+    PASSWORD_NOT_MATCH(2016, "Mật khẩu không giống nhau", HttpStatus.BAD_REQUEST),
+    OTP_REQUIRED(2017, "OTP không đúng định dạng", HttpStatus.BAD_REQUEST),
 
     // Wallet & Transaction Errors (3000 - 3999)
     WALLET_NOT_FOUND(3001, "Không tìm thấy ví điện tử của người dùng.", HttpStatus.NOT_FOUND),
@@ -44,6 +50,7 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND(5002, "Không tìm thấy nội dung tin nhắn.", HttpStatus.NOT_FOUND),
     NOT_FRIENDS(5003, "Hai người phải là bạn bè mới có thể thực hiện hành động này.", HttpStatus.BAD_REQUEST),
     FRIEND_REQUEST_EXISTED(5004, "Lời mời kết bạn giữa hai người đã được gửi trước đó.", HttpStatus.BAD_REQUEST);
+
     private final int code;
     private final String message;
     private final HttpStatus httpStatus;

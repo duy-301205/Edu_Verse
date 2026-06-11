@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/eduverse_db
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:11111111}
     driver-class-name: org.postgresql.Driver
 
     hikari:
@@ -58,6 +58,29 @@ spring:
               - email
               - profile
 
+  mail:
+    host: ${MAIL_HOST:smtp-relay.brevo.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:ab4f2e001@smtp-brevo.com}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      # password: ${SPRING_REDIS_PASSWORD}
+      connect-timeout: 5000ms
+      timeout: 5000ms
+
+      ssl:
+        enabled: false
 server:
   port: 8088
 

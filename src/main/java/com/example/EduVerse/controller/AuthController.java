@@ -1,12 +1,7 @@
 package com.example.EduVerse.controller;
 
-import com.example.EduVerse.dto.request.LoginRequest;
-import com.example.EduVerse.dto.request.RefreshTokenRequest;
-import com.example.EduVerse.dto.request.RegisterRequest;
-import com.example.EduVerse.dto.response.ApiResponse;
-import com.example.EduVerse.dto.response.LoginResponse;
-import com.example.EduVerse.dto.response.RefreshTokenResponse;
-import com.example.EduVerse.dto.response.RegisterResponse;
+import com.example.EduVerse.dto.request.*;
+import com.example.EduVerse.dto.response.*;
 import com.example.EduVerse.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.Getter;
@@ -56,6 +51,38 @@ public class AuthController {
         return ApiResponse.<LoginResponse>builder()
                 .message("Đăng nhập bằng tài khoản Google thành công!")
                 .data(loginResponse)
+                .build();
+    }
+
+    @PutMapping("/password/change")
+    public ApiResponse<Void> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        authService.changePassword(changePasswordRequest);
+        return ApiResponse.<Void>builder()
+                .message("Thay đổi mật khẩu tài khoản thành công!")
+                .build();
+    }
+
+    @PostMapping("/password/forgot")
+    public ApiResponse<Void> sendOtp(@Valid @RequestBody SendOtpRequest sendOtpRequest) {
+        authService.sendOtpForgotPassword(sendOtpRequest);
+        return ApiResponse.<Void>builder()
+                .message("Mã xác thực OTP đã được gửi về Email của bạn.")
+                .build();
+    }
+
+    @PostMapping("/password/verify")
+    public ApiResponse<VerifyOtpResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest verifyOtpRequest) {
+        return ApiResponse.<VerifyOtpResponse>builder()
+                .message("Xác thực mã OTP thành công!")
+                .data(authService.verifyOtpForgotPassword(verifyOtpRequest))
+                .build();
+    }
+
+    @PostMapping("/password/reset")
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        authService.resetPasswordWithToken(resetPasswordRequest);
+        return ApiResponse.<Void>builder()
+                .message("Đặt lại mật khẩu mới thành công! Bạn có thể tiến hành đăng nhập.")
                 .build();
     }
 }
