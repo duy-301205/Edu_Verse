@@ -1,8 +1,10 @@
 package com.example.EduVerse.service;
 
 import com.example.EduVerse.dto.request.LoginRequest;
+import com.example.EduVerse.dto.request.RefreshTokenRequest;
 import com.example.EduVerse.dto.request.RegisterRequest;
 import com.example.EduVerse.dto.response.LoginResponse;
+import com.example.EduVerse.dto.response.RefreshTokenResponse;
 import com.example.EduVerse.dto.response.RegisterResponse;
 import com.example.EduVerse.entity.User;
 import com.example.EduVerse.entity.Wallet;
@@ -89,6 +91,31 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .username(user.getUsername())
                 .role(user.getRole().name())
+                .build();
+    }
+
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+        String oldRefreshToken = request.getRefreshToken();
+
+        if(jwtUtilsService.isTokenExpired(oldRefreshToken)) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        String username = jwtUtilsService.extractUsername(oldRefreshToken);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if(user.getStatus() != UserStatus.ACTIVE) {
+            throw new AppException(ErrorCode.USER_BANNED);
+        }
+
+        String newAccessToken = jwtUtilsService.generateAccessToken(user);
+        String newRefreshToken = jwtUtilsService.generateRefreshToken(user);
+
+        return RefreshTokenResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .build();
     }
 
