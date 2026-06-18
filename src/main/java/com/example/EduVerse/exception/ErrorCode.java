@@ -49,7 +49,10 @@ public enum ErrorCode {
     UPLOAD_FAILED(4006, "Lưu trữ file thất bại, vui lòng kiểm tra lại đường truyền.", HttpStatus.INTERNAL_SERVER_ERROR),
     CATEGORY_HAS_CHILDREN(4009, "Danh mục này chứa danh mục con", HttpStatus.BAD_REQUEST),
     DOCUMENT_NOT_ACCESSIBLE(4010, "Tài liệu chưa được APPROVED, không thể xem", HttpStatus.BAD_REQUEST),
-
+    TITLE_REQUIRED(4011, "Tiêu đề tài liệu không được để trống", HttpStatus.BAD_REQUEST),
+    TITLE_INVALID(4012, "Tiêu đề tài liệu không được vượt quá {max} ký tự", HttpStatus.BAD_REQUEST),
+    INVALID_VND_PRICE(4013, "Giá tiền không hợp lệ", HttpStatus.BAD_REQUEST),
+    INVALID_COIN_PRICE(4014, "Số điểm không hợp lệ", HttpStatus.BAD_REQUEST),
     // Chat & Social Errors (5000 - 5999)
     CONVERSATION_NOT_FOUND(5001, "Phòng chat không tồn tại hoặc bạn đã rời nhóm.", HttpStatus.NOT_FOUND),
     MESSAGE_NOT_FOUND(5002, "Không tìm thấy nội dung tin nhắn.", HttpStatus.NOT_FOUND),
