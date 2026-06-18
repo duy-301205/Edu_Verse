@@ -48,6 +48,7 @@ public enum ErrorCode {
     CANNOT_BUY_OWN_DOCUMENT(4005, "Bạn không thể tự mua tài liệu do chính mình đăng tải.", HttpStatus.BAD_REQUEST),
     UPLOAD_FAILED(4006, "Lưu trữ file thất bại, vui lòng kiểm tra lại đường truyền.", HttpStatus.INTERNAL_SERVER_ERROR),
     CATEGORY_HAS_CHILDREN(4009, "Danh mục này chứa danh mục con", HttpStatus.BAD_REQUEST),
+    DOCUMENT_NOT_ACCESSIBLE(4010, "Tài liệu chưa được APPROVED, không thể xem", HttpStatus.BAD_REQUEST),
 
     // Chat & Social Errors (5000 - 5999)
     CONVERSATION_NOT_FOUND(5001, "Phòng chat không tồn tại hoặc bạn đã rời nhóm.", HttpStatus.NOT_FOUND),
