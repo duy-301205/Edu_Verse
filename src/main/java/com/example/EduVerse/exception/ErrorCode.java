@@ -43,9 +43,11 @@ public enum ErrorCode {
     CATEGORY_NOT_EMPTY(4002, "Không thể xóa danh mục đang chứa tài liệu bên trong.", HttpStatus.BAD_REQUEST),
     DOCUMENT_NOT_FOUND(4003, "Tài liệu không tồn tại hoặc đã bị ẩn.", HttpStatus.NOT_FOUND),
     CATEGORY_NOT_NULL(4007, "Tên danh mục không được để trống", HttpStatus.BAD_REQUEST),
+    INVALID_PARENT_CATEGORY(4008, "Không được phép chọn chính mình làm danh mục cha", HttpStatus.BAD_REQUEST),
     DOCUMENT_NOT_OWNED(4004, "Bạn chưa mua bản quyền để tải tài liệu này.", HttpStatus.FORBIDDEN),
     CANNOT_BUY_OWN_DOCUMENT(4005, "Bạn không thể tự mua tài liệu do chính mình đăng tải.", HttpStatus.BAD_REQUEST),
     UPLOAD_FAILED(4006, "Lưu trữ file thất bại, vui lòng kiểm tra lại đường truyền.", HttpStatus.INTERNAL_SERVER_ERROR),
+    CATEGORY_HAS_CHILDREN(4009, "Danh mục này chứa danh mục con", HttpStatus.BAD_REQUEST),
 
     // Chat & Social Errors (5000 - 5999)
     CONVERSATION_NOT_FOUND(5001, "Phòng chat không tồn tại hoặc bạn đã rời nhóm.", HttpStatus.NOT_FOUND),
